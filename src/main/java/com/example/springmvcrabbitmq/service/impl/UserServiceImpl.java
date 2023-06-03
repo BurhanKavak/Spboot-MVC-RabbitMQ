@@ -32,6 +32,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public ApiResponse<UserDtoForResponse> getOneUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User Not Found"));
+        UserDtoForResponse userDtoForResponse = UserDtoForResponse.fromUser(user);
+        return ApiResponse.default_OK(userDtoForResponse);
+    }
+
+
+    @Override
     public ApiResponse<UserDtoForResponse> createUser(User user) {
         userRepository.save(user);
         UserDtoForResponse userDtoForResponse = UserDtoForResponse.fromUser(user);

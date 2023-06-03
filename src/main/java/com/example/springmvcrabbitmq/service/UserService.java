@@ -9,5 +9,7 @@ import java.util.List;
 public interface UserService {
 
     ApiResponse<List<UserDtoForResponse>> getUsers();
+
+    ApiResponse<UserDtoForResponse> getOneUser(Long userId);
     ApiResponse<UserDtoForResponse> createUser(User user);
 }

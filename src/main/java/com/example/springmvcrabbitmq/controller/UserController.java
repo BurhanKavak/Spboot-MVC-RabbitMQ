@@ -23,6 +23,11 @@ public class UserController {
         return userService.getUsers();
     }
 
+    @GetMapping("/{userId}")
+    public ApiResponse<UserDtoForResponse> getOneUser(@PathVariable("userId") Long userId) {
+        return userService.getOneUser(userId);
+    }
+
     @PostMapping
     public ApiResponse<UserDtoForResponse> createUser(@RequestBody User user) {
         return userService.createUser(user);
