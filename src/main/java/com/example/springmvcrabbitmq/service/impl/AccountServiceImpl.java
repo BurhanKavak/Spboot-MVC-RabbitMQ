@@ -79,7 +79,32 @@ public class AccountServiceImpl implements AccountService {
         return ApiResponse.default_OK(accountDto);
     }
 
+    @Override
+    public void decreaseBalance(Long accountId, BigDecimal amount) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account Not Found"));
 
+        BigDecimal newBalance = account.getBalance().subtract(amount);
+        if (newBalance.compareTo(BigDecimal.ZERO) < 0) { // Bakiye 0'dan küçükse yetersiz bakiye hatası fırlat
+            throw new RuntimeException("Insufficient balance");
+
+        }
+
+        account.setBalance(newBalance);
+        accountRepository.save(account);
+
+    }
+
+    @Override
+    public void increaseBalance(Long accountId, BigDecimal amount) {
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account Not Found"));
+
+
+        BigDecimal newBalance = account.getBalance().add(amount);
+        account.setBalance(newBalance);
+        accountRepository.save(account);
+    }
 
 
 }

@@ -15,5 +15,8 @@ public interface AccountService {
 
     ApiResponse<AccountDtoForResponse> createAccount(AccountDtoForRequest accountDto);
 
-    ApiResponse<AccountDtoForResponse> withdrawMoney(Long accountId, BigDecimal amount);
+    ApiResponse<AccountDtoForResponse> withdrawMoney(Long accountId, BigDecimal amount); // Para çekme metodu
+
+    void decreaseBalance(Long accountId, BigDecimal amount);  // Bakiyeyi azaltma metodu
+    void increaseBalance(Long accountId, BigDecimal amount); // Bakiyeyi artırma metodu
 }

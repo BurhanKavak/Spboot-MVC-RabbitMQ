@@ -14,11 +14,11 @@ public class Transfer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String sender;
+    private String sender; // Gönderici
 
-    private String recipient;
+    private String recipient; // Alıcı
 
-    private BigDecimal amount;
+    private BigDecimal amount; // Miktar
 
     @ManyToOne
     @JoinColumn(name = "user_id")
