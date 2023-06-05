@@ -19,8 +19,8 @@ public class TransferDtoForResponse {
     public static TransferDtoForResponse fromTransfer(Transfer transfer) {
         TransferDtoForResponse transferDto = new TransferDtoForResponse();
         transferDto.setId(transfer.getId());
-        transferDto.setSender(transfer.getSender());
-        transferDto.setRecipient(transfer.getRecipient());
+        transferDto.setSender(transfer.getSender().getName());
+        transferDto.setRecipient(transfer.getRecipient().getName());
         transferDto.setAmount(transfer.getAmount());
         return transferDto;
     }

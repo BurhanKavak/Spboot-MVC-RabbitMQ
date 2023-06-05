@@ -1,5 +1,6 @@
 package com.example.springmvcrabbitmq.controller;
 
+import com.example.springmvcrabbitmq.dto.request.UserDtoForRequest;
 import com.example.springmvcrabbitmq.dto.response.UserDtoForResponse;
 import com.example.springmvcrabbitmq.model.User;
 import com.example.springmvcrabbitmq.model.messages.ApiResponse;
@@ -29,7 +30,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ApiResponse<UserDtoForResponse> createUser(@RequestBody User user) {
-        return userService.createUser(user);
+    public ApiResponse<UserDtoForResponse> createUser(@RequestBody UserDtoForRequest userDto) {
+        return userService.createUser(userDto);
     }
 }

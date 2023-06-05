@@ -27,7 +27,10 @@ public class User {
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     private List<Account> accounts;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Transfer> transfers;
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
+    private List<Transfer> sentTransfers;
+
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL)
+    private List<Transfer> receivedTransfers;
 
 }

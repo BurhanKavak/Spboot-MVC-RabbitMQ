@@ -7,6 +7,7 @@ import com.example.springmvcrabbitmq.model.Account;
 import com.example.springmvcrabbitmq.model.User;
 import com.example.springmvcrabbitmq.model.messages.ApiResponse;
 import com.example.springmvcrabbitmq.repository.AccountRepository;
+import com.example.springmvcrabbitmq.repository.UserRepository;
 import com.example.springmvcrabbitmq.service.AccountService;
 import com.example.springmvcrabbitmq.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
@@ -46,21 +48,18 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public ApiResponse<AccountDtoForResponse> createAccount(AccountDtoForRequest accountDto) {
-        UserDtoForResponse userDto = userService.getOneUser(accountDto.getUserId()).getData();
         Account account = new Account();
-
         account.setAccountNumber(accountDto.getAccountNumber());
         account.setBalance(accountDto.getBalance());
-        User user = userDto.toUser();
-        account.setUser(user);
 
+        User user = userService.findById(accountDto.getUserId());
+        account.setUser(user);
         accountRepository.save(account);
 
         AccountDtoForResponse createdAccountDto = AccountDtoForResponse.fromAccount(account);
-
         return ApiResponse.default_CREATED(createdAccountDto);
-
     }
+
 
     @Override
     public ApiResponse<AccountDtoForResponse> withdrawMoney(Long accountId, BigDecimal amount) {
@@ -99,7 +98,6 @@ public class AccountServiceImpl implements AccountService {
     public void increaseBalance(Long accountId, BigDecimal amount) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new RuntimeException("Account Not Found"));
-
 
         BigDecimal newBalance = account.getBalance().add(amount);
         account.setBalance(newBalance);

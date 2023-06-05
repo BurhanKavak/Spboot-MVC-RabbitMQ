@@ -17,11 +17,6 @@ public class UserDtoForResponse {
         return userDtoForResponse;
     }
 
-    public User toUser() {
-        User user = new User();
-        user.setName(this.name);
-        user.setEmail(this.email);
-        return user;
-    }
+
 
 }
