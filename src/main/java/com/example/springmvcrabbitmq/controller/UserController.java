@@ -2,9 +2,7 @@ package com.example.springmvcrabbitmq.controller;
 
 import com.example.springmvcrabbitmq.dto.request.UserDtoForRequest;
 import com.example.springmvcrabbitmq.dto.response.UserDtoForResponse;
-import com.example.springmvcrabbitmq.model.User;
 import com.example.springmvcrabbitmq.model.messages.ApiResponse;
-import com.example.springmvcrabbitmq.repository.UserRepository;
 import com.example.springmvcrabbitmq.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

@@ -2,12 +2,11 @@ package com.example.springmvcrabbitmq.service.impl;
 
 import com.example.springmvcrabbitmq.dto.request.AccountDtoForRequest;
 import com.example.springmvcrabbitmq.dto.response.AccountDtoForResponse;
-import com.example.springmvcrabbitmq.dto.response.UserDtoForResponse;
+import com.example.springmvcrabbitmq.exception.AccountNotFoundException;
 import com.example.springmvcrabbitmq.model.Account;
 import com.example.springmvcrabbitmq.model.User;
 import com.example.springmvcrabbitmq.model.messages.ApiResponse;
 import com.example.springmvcrabbitmq.repository.AccountRepository;
-import com.example.springmvcrabbitmq.repository.UserRepository;
 import com.example.springmvcrabbitmq.service.AccountService;
 import com.example.springmvcrabbitmq.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -64,7 +63,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public ApiResponse<AccountDtoForResponse> withdrawMoney(Long accountId, BigDecimal amount) {
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Account Not Found"));
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
 
         if (account.getBalance().compareTo(amount) < 0) {
             throw new RuntimeException("Insufficient balance");

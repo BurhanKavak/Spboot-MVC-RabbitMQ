@@ -2,6 +2,7 @@ package com.example.springmvcrabbitmq.service.impl;
 
 import com.example.springmvcrabbitmq.dto.request.UserDtoForRequest;
 import com.example.springmvcrabbitmq.dto.response.UserDtoForResponse;
+import com.example.springmvcrabbitmq.exception.UserNotFoundException;
 import com.example.springmvcrabbitmq.model.User;
 import com.example.springmvcrabbitmq.model.messages.ApiResponse;
 import com.example.springmvcrabbitmq.repository.UserRepository;
@@ -34,7 +35,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User Not Found"));
+        return userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
 
     }
 
