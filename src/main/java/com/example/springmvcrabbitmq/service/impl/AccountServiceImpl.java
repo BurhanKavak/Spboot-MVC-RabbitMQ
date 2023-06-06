@@ -3,6 +3,7 @@ package com.example.springmvcrabbitmq.service.impl;
 import com.example.springmvcrabbitmq.dto.request.AccountDtoForRequest;
 import com.example.springmvcrabbitmq.dto.response.AccountDtoForResponse;
 import com.example.springmvcrabbitmq.exception.AccountNotFoundException;
+import com.example.springmvcrabbitmq.exception.InsufficientException;
 import com.example.springmvcrabbitmq.model.Account;
 import com.example.springmvcrabbitmq.model.User;
 import com.example.springmvcrabbitmq.model.messages.ApiResponse;
@@ -40,7 +41,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public ApiResponse<AccountDtoForResponse> getOneAccount(Long accountId) {
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Account Not Found"));
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
         AccountDtoForResponse accountDto = AccountDtoForResponse.fromAccount(account);
         return ApiResponse.default_OK(accountDto);
     }
@@ -66,7 +67,7 @@ public class AccountServiceImpl implements AccountService {
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
 
         if (account.getBalance().compareTo(amount) < 0) {
-            throw new RuntimeException("Insufficient balance");
+            throw new InsufficientException(accountId);
         }
 
         BigDecimal newBalance = account.getBalance().subtract(amount);
@@ -80,11 +81,11 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void decreaseBalance(Long accountId, BigDecimal amount) {
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Account Not Found"));
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
 
         BigDecimal newBalance = account.getBalance().subtract(amount);
         if (newBalance.compareTo(BigDecimal.ZERO) < 0) { // Bakiye 0'dan küçükse yetersiz bakiye hatası fırlat
-            throw new RuntimeException("Insufficient balance");
+            throw new InsufficientException(accountId);
 
         }
 
@@ -96,7 +97,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void increaseBalance(Long accountId, BigDecimal amount) {
         Account account = accountRepository.findById(accountId)
-                .orElseThrow(() -> new RuntimeException("Account Not Found"));
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
 
         BigDecimal newBalance = account.getBalance().add(amount);
         account.setBalance(newBalance);

@@ -4,7 +4,9 @@ import com.example.springmvcrabbitmq.dto.request.UserDtoForRequest;
 import com.example.springmvcrabbitmq.dto.response.UserDtoForResponse;
 import com.example.springmvcrabbitmq.model.messages.ApiResponse;
 import com.example.springmvcrabbitmq.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
+@Validated
 public class UserController {
 
     private final UserService userService;
@@ -28,7 +31,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ApiResponse<UserDtoForResponse> createUser(@RequestBody UserDtoForRequest userDto) {
+    public ApiResponse<UserDtoForResponse> createUser(@Valid @RequestBody UserDtoForRequest userDto) {
         return userService.createUser(userDto);
     }
 }

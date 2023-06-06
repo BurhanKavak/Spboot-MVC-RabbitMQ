@@ -2,11 +2,13 @@ package com.example.springmvcrabbitmq.service.impl;
 
 import com.example.springmvcrabbitmq.dto.request.UserDtoForRequest;
 import com.example.springmvcrabbitmq.dto.response.UserDtoForResponse;
+import com.example.springmvcrabbitmq.exception.AlreadyExistException;
 import com.example.springmvcrabbitmq.exception.UserNotFoundException;
 import com.example.springmvcrabbitmq.model.User;
 import com.example.springmvcrabbitmq.model.messages.ApiResponse;
 import com.example.springmvcrabbitmq.repository.UserRepository;
 import com.example.springmvcrabbitmq.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -47,9 +49,15 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    public ApiResponse<UserDtoForResponse> createUser(UserDtoForRequest userDtoForRequest) {
-        User user = new User();
+    public ApiResponse<UserDtoForResponse> createUser(@Valid UserDtoForRequest userDtoForRequest) {
 
+        String email = userDtoForRequest.getEmail();
+
+        if (userRepository.existsByEmail(email)) {
+            throw new AlreadyExistException("Email already exists: " + email);
+        }
+
+        User user = new User();
         user.setName(userDtoForRequest.getUsername());
         user.setEmail(userDtoForRequest.getEmail());
         userRepository.save(user);
@@ -61,13 +69,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByUsernameAndEmail(String name, String email) {
         return userRepository.findByNameAndEmail(name, email)
-                .orElseThrow(() -> new RuntimeException("User Not Found"));
+                .orElseThrow(() -> new UserNotFoundException(name));
     }
 
     @Override
     public User findByAccountId(Long accountId) {
         return userRepository.findByAccounts_Id(accountId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(accountId));
     }
 
 

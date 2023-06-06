@@ -12,6 +12,7 @@ public class TransferDtoForRequest {
 
     private UserDtoForRequest recipient;
 
+
     private BigDecimal amount;
 
 }
