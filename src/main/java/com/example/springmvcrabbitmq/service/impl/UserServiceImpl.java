@@ -10,6 +10,7 @@ import com.example.springmvcrabbitmq.repository.UserRepository;
 import com.example.springmvcrabbitmq.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public class UserServiceImpl implements UserService {
         return ApiResponse.default_OK(userDtoForResponse);
     }
 
-
+    @Override
     public ApiResponse<UserDtoForResponse> createUser(@Valid UserDtoForRequest userDtoForRequest) {
 
         String email = userDtoForRequest.getEmail();

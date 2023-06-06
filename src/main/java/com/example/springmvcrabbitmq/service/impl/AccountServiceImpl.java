@@ -11,6 +11,10 @@ import com.example.springmvcrabbitmq.repository.AccountRepository;
 import com.example.springmvcrabbitmq.service.AccountService;
 import com.example.springmvcrabbitmq.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,6 +28,8 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
 
     private final UserService userService;
+
+
 
     @Override
     public ApiResponse<List<AccountDtoForResponse>> getAccounts() {
@@ -48,6 +54,8 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public ApiResponse<AccountDtoForResponse> createAccount(AccountDtoForRequest accountDto) {
+
+
         Account account = new Account();
         account.setAccountNumber(accountDto.getAccountNumber());
         account.setBalance(accountDto.getBalance());
@@ -95,6 +103,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @RabbitListener(queues = "${sq.rabbit.queue.name}")
     public void increaseBalance(Long accountId, BigDecimal amount) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));

@@ -12,6 +12,10 @@ import com.example.springmvcrabbitmq.service.AccountService;
 import com.example.springmvcrabbitmq.service.TransferService;
 import com.example.springmvcrabbitmq.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.core.AmqpTemplate;
+import org.springframework.amqp.core.DirectExchange;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,12 +29,24 @@ public class TransferServiceImpl implements TransferService {
 
     private final UserService userService;
 
+    private final DirectExchange exchange;
+
+    private final RabbitTemplate rabbitTemplate;
+
+
+    @Value("${sq.rabbit.routing.name}")
+    String routingName;
+
+    @Value("${sq.rabbit.queue.name}")
+    String queueName;
 
     @Override
     public ApiResponse<TransferDtoForResponse> createTransfer(TransferDtoForRequest transferDto) {
 
         //TODO ismine göre değilde findByUserID yaparsan daha iyi olur çünkü benzersiz olması gerekiyor.
         //TODO bunu security kullanarak daha rahat yapabilirsin bir User giriş ekranı olsun Client tarafında
+
+        rabbitTemplate.convertAndSend(exchange.getName(), routingName, transferDto);
 
         User senderUser = userService.findByUsernameAndEmail(transferDto.getSender().getUsername(),
                 transferDto.getSender().getEmail());
