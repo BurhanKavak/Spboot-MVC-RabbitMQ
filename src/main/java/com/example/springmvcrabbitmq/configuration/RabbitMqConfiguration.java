@@ -1,16 +1,20 @@
 package com.example.springmvcrabbitmq.configuration;
 
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @Configuration
+@EnableScheduling
 public class RabbitMqConfiguration {
 
     @Value("${sq.rabbit.queue.name}")
@@ -26,14 +30,6 @@ public class RabbitMqConfiguration {
     public Queue firstQueue() {
         return new Queue(queueName,false);
     }
- /*   @Bean
-    public Queue secondQueue() {
-        return new Queue("secondStepQueue",true);
-    }
-    @Bean
-    public Queue thirdQueue() {
-        return new Queue("thirdStepQueue",true);
-    } */
 
     @Bean
     public DirectExchange exchange() {
@@ -42,20 +38,20 @@ public class RabbitMqConfiguration {
 
     @Bean
     public Binding binding (final Queue firstQueue, final DirectExchange exchange) {
-        return BindingBuilder.bind(firstQueue).to(exchange).with(routingName);
+        return BindingBuilder.bind(firstQueue)
+                .to(exchange)
+                .with(routingName);
     }
-   /* @Bean
-    public Binding secondBinding (final Queue secondQueue, final DirectExchange exchange) {
-        return BindingBuilder.bind(secondQueue).to(exchange).with("secondRoute");
-    }
-    @Bean
-    public Binding thirdBinding (final Queue thirdQueue, final DirectExchange exchange) {
-        return BindingBuilder.bind(thirdQueue).to(exchange).with("thirdRoute");
-    }*/
-
     @Bean
     public MessageConverter jsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
+    }
+
+    @Bean
+    RabbitTemplate rabbitTemplate(ConnectionFactory factory) {
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(factory);
+        rabbitTemplate.setMessageConverter(jsonMessageConverter());
+        return rabbitTemplate;
     }
 
 }

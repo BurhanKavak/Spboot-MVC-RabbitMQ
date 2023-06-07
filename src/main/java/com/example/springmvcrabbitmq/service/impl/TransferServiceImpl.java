@@ -11,6 +11,7 @@ import com.example.springmvcrabbitmq.repository.TransferRepository;
 import com.example.springmvcrabbitmq.service.AccountService;
 import com.example.springmvcrabbitmq.service.TransferService;
 import com.example.springmvcrabbitmq.service.UserService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.DirectExchange;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class TransferServiceImpl implements TransferService {
 
 
@@ -37,8 +39,6 @@ public class TransferServiceImpl implements TransferService {
     @Value("${sq.rabbit.routing.name}")
     String routingName;
 
-    @Value("${sq.rabbit.queue.name}")
-    String queueName;
 
     @Override
     public ApiResponse<TransferDtoForResponse> createTransfer(TransferDtoForRequest transferDto) {
@@ -46,17 +46,20 @@ public class TransferServiceImpl implements TransferService {
         //TODO ismine göre değilde findByUserID yaparsan daha iyi olur çünkü benzersiz olması gerekiyor.
         //TODO bunu security kullanarak daha rahat yapabilirsin bir User giriş ekranı olsun Client tarafında
 
-        rabbitTemplate.convertAndSend(exchange.getName(), routingName, transferDto);
-
         User senderUser = userService.findByUsernameAndEmail(transferDto.getSender().getUsername(),
                 transferDto.getSender().getEmail());
 
         User recipientUser = userService.findByUsernameAndEmail(transferDto.getRecipient().getUsername(),
                 transferDto.getRecipient().getEmail());
 
-        accountService.decreaseBalance(senderUser.getId(), transferDto.getAmount());
 
-        accountService.increaseBalance(recipientUser.getId(), transferDto.getAmount());
+        //TODO Eğer ki kuyruğa atmıyorsan bu yorum satırını kaldır!
+        accountService.decreaseBalance(senderUser.getId(), transferDto.getAmount());
+        //accountService.increaseBalance(recipientUser.getId(), transferDto.getAmount());
+
+
+
+        rabbitTemplate.convertAndSend(exchange.getName(), routingName, transferDto);
 
         Transfer transfer = new Transfer();
         transfer.setSender(senderUser);

@@ -1,6 +1,7 @@
 package com.example.springmvcrabbitmq.service;
 
 import com.example.springmvcrabbitmq.dto.request.AccountDtoForRequest;
+import com.example.springmvcrabbitmq.dto.request.TransferDtoForRequest;
 import com.example.springmvcrabbitmq.dto.response.AccountDtoForResponse;
 import com.example.springmvcrabbitmq.model.messages.ApiResponse;
 
@@ -19,4 +20,6 @@ public interface AccountService {
 
     void decreaseBalance(Long accountId, BigDecimal amount);  // Bakiyeyi azaltma metodu
     void increaseBalance(Long accountId, BigDecimal amount); // Bakiyeyi artırma metodu
+
+   // void increaseBalanceFromMessage(TransferDtoForRequest transferDto);
 }

@@ -40,6 +40,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
+    @ExceptionHandler(InsufficientException.class)
+    public ResponseEntity<?> handleInsufficientException(InsufficientException exception, WebRequest request) {
+        var response = new ApiErrorResponse<>();
+        response.setHttpStatus(HttpStatus.BAD_REQUEST);
+        response.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        response.setPath(request.getDescription(false));
+        response.setErrors(Arrays.asList(exception.getMessage()));
+
+        log.error(response.toString());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(response);
+    }
+
     @Override
     protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 

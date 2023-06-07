@@ -1,6 +1,7 @@
 package com.example.springmvcrabbitmq.service.impl;
 
 import com.example.springmvcrabbitmq.dto.request.AccountDtoForRequest;
+import com.example.springmvcrabbitmq.dto.request.TransferDtoForRequest;
 import com.example.springmvcrabbitmq.dto.response.AccountDtoForResponse;
 import com.example.springmvcrabbitmq.exception.AccountNotFoundException;
 import com.example.springmvcrabbitmq.exception.InsufficientException;
@@ -10,12 +11,14 @@ import com.example.springmvcrabbitmq.model.messages.ApiResponse;
 import com.example.springmvcrabbitmq.repository.AccountRepository;
 import com.example.springmvcrabbitmq.service.AccountService;
 import com.example.springmvcrabbitmq.service.UserService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.amqp.core.AmqpTemplate;
-import org.springframework.amqp.core.DirectExchange;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -23,11 +26,14 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AccountServiceImpl implements AccountService {
 
     private final AccountRepository accountRepository;
 
     private final UserService userService;
+
+    private final PlatformTransactionManager transactionManager;
 
 
 
@@ -87,6 +93,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
     public void decreaseBalance(Long accountId, BigDecimal amount) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
@@ -103,7 +110,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @RabbitListener(queues = "${sq.rabbit.queue.name}")
+    @Transactional
     public void increaseBalance(Long accountId, BigDecimal amount) {
         Account account = accountRepository.findById(accountId)
                 .orElseThrow(() -> new AccountNotFoundException(accountId));
@@ -111,7 +118,35 @@ public class AccountServiceImpl implements AccountService {
         BigDecimal newBalance = account.getBalance().add(amount);
         account.setBalance(newBalance);
         accountRepository.save(account);
+
+        log.warn("Bakiye artırıldı - Account ID: {}, Miktar: {}", accountId, amount);
     }
 
+   @RabbitListener(queues = "${sq.rabbit.queue.name}")
+    public void receiveMessage(TransferDtoForRequest transferDto) {
+        log.warn("Mesaj alındı - Gönderici: {}, Alıcı: {}, Miktar: {}",
+                transferDto.getSender().getUsername(),
+                transferDto.getRecipient().getUsername(),
+                transferDto.getAmount());
+
+        // 3 saniye beklemek için bir thread oluşturup çalıştırma
+        Thread thread = new Thread(() -> {
+            try {
+                Thread.sleep(3000); // 3 saniye bekleyelim
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            BigDecimal amount = transferDto.getAmount();
+            Long recipientAccountId = userService.findByUsernameAndEmail(
+                    transferDto.getRecipient().getUsername(),
+                    transferDto.getRecipient().getEmail()
+            ).getId();
+
+            increaseBalance(recipientAccountId,amount);
+        });
+
+        thread.start();
+    }
 
 }
